@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munkanap Számláló</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: #f4f4f4;
+            transition: background 1s, color 1s;
+        }
+        h1, #timer {
+            font-size: 2rem;
+        }
+        #message {
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        @keyframes confetti {
+            0% {transform: translateY(0);}
+            100% {transform: translateY(100vh);}
+        }
+    </style>
+</head>
+<body>
+    <h1 id="day"></h1>
+    <div id="timer">00:00:00</div>
+    <div id="message" class="hidden"></div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const dayOfWeek = now.getDay(); // 0: Vasárnap, 6: Szombat
+            const start = new Date(now);
+            start.setHours(8, 0, 0, 0);
+            const end = new Date(now);
+            end.setHours(16, 0, 0, 0);
+            
+            document.getElementById("day").textContent = now.toLocaleDateString("hu-HU", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                document.body.style.background = "black";
+                document.body.style.color = "white";
+                document.getElementById("timer").textContent = "";
+                document.getElementById("message").textContent = "Kellemes hétvégét kívánunk! Jó pihenést!";
+                document.getElementById("message").classList.remove("hidden");
+            } else if (now >= start && now < end) {
+                const elapsed = new Date(now - start);
+                const hours = String(elapsed.getUTCHours()).padStart(2, '0');
+                const minutes = String(elapsed.getUTCMinutes()).padStart(2, '0');
+                const seconds = String(elapsed.getUTCSeconds()).padStart(2, '0');
+                document.getElementById("timer").textContent = `${hours}:${minutes}:${seconds}`;
+            } else if (now >= end) {
+                document.body.style.background = "black";
+                document.body.style.color = "white";
+                document.getElementById("timer").textContent = "";
+                document.getElementById("message").textContent = "Ne izgulj, holnap jobb lesz, jó pihenést";
+                document.getElementById("message").classList.remove("hidden");
+                
+                if (now.getHours() === 16 && now.getMinutes() === 0) {
+                    alert("Vigyázz magadra, további szép napot!");
+                    createConfetti();
+                }
+            } else {
+                document.getElementById("timer").textContent = "00:00:00";
+            }
+        }
+        
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                let confetti = document.createElement("div");
+                confetti.style.position = "absolute";
+                confetti.style.left = Math.random() * 100 + "vw";
+                confetti.style.top = "0px";
+                confetti.style.width = "10px";
+                confetti.style.height = "10px";
+                confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animation = "confetti 2s linear forwards";
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 2000);
+            }
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
